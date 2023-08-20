@@ -74,7 +74,7 @@ export class ServerSocket {
 
             const userId = this.GetUserIdFromSocketId(socket.id);
 
-            fetch(`${config.server.hostname}:${config.server.port}/chat/create/message`, {
+            fetch(`${config.server.hostname}/chat/create/message`, {
                 method: 'POST',
                 headers: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
@@ -105,7 +105,7 @@ export class ServerSocket {
 
                 this.SendMessage('user_disconnected', socket_ids, userId);
 
-                fetch(`${config.server.hostname}:${config.server.port}/user/logout`, {
+                fetch(`${config.server.hostname}/user/logout`, {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify({
@@ -139,7 +139,7 @@ export class ServerSocket {
     };
 
     GetAllMessages = () => {
-        fetch(`${config.server.hostname}:${config.server.port}/chat/get/messages`, { method: 'GET' })
+        fetch(`${config.server.hostname}/chat/get/messages`, { method: 'GET' })
             .then(function (response) {
                 return response.json();
             })
