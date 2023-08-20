@@ -1,7 +1,8 @@
-import { Server as HTTPServer } from "http";
-import { Socket, Server } from "socket.io";
+import { Server as HTTPServer } from 'http';
+import { Socket, Server } from 'socket.io';
 import logging from './config/logging';
-import IMessage from "./interfaces/message";
+import IMessage from './interfaces/message';
+import config from './config/config';
 
 const NAMESPACE = 'Socket';
 
@@ -28,7 +29,6 @@ export class ServerSocket {
         this.io.on('connect', this.StartListeners);
 
         logging.info(NAMESPACE, 'Socket IO started.');
-
     }
 
     StartListeners = (socket: Socket) => {
@@ -74,12 +74,12 @@ export class ServerSocket {
 
             const userId = this.GetUserIdFromSocketId(socket.id);
 
-            fetch('http://localhost:1337/chat/create/message', {
+            fetch('${config.server.hostname}:${config.server.port}/chat/create/message', {
                 method: 'POST',
-                headers: { "Content-type": "application/json" },
+                headers: { 'Content-type': 'application/json' },
                 body: JSON.stringify({
-                    "userId": userId,
-                    "message": text
+                    userId: userId,
+                    message: text
                 })
             })
                 .then(function (response) {
@@ -92,7 +92,6 @@ export class ServerSocket {
                 .catch(function (error) {
                     console.log('Request failed', error);
                 });
-
         });
 
         socket.on('disconnect', () => {
@@ -106,11 +105,11 @@ export class ServerSocket {
 
                 this.SendMessage('user_disconnected', socket_ids, userId);
 
-                fetch('http://localhost:1337/user/logout', {
+                fetch(`${config.server.hostname}:${config.server.port}/user/logout`, {
                     method: 'POST',
-                    headers: { "Content-type": "application/json" },
+                    headers: { 'Content-type': 'application/json' },
                     body: JSON.stringify({
-                        "userId": userId
+                        userId: userId
                     })
                 })
                     .then(function (response) {
@@ -122,11 +121,9 @@ export class ServerSocket {
                     .catch(function (error) {
                         console.log('Request failed', error);
                     });
-
             }
-
         });
-    }
+    };
 
     GetUserIdFromSocketId = (id: string) => Object.keys(this.users).find((userId) => this.users[userId] === id);
 
@@ -136,13 +133,13 @@ export class ServerSocket {
      * @param users  List of socket id's
      * @param payload any information needed by the user for state update
      */
-    SendMessage = (name: string, users: string[], payload: (string | string[] | IMessage[])) => {
+    SendMessage = (name: string, users: string[], payload: string | string[] | IMessage[]) => {
         console.info(`Emmitting event: ${name} to `, users);
-        users.forEach((id) => payload ? this.io.to(id).emit(name, payload) : this.io.to(id).emit(name));
-    }
+        users.forEach((id) => (payload ? this.io.to(id).emit(name, payload) : this.io.to(id).emit(name)));
+    };
 
     GetAllMessages = () => {
-        fetch('http://localhost:1337/chat/get/messages', { method: 'GET' })
+        fetch('${config.server.hostname}:${config.server.port}/chat/get/messages', { method: 'GET' })
             .then(function (response) {
                 return response.json();
             })
@@ -152,14 +149,10 @@ export class ServerSocket {
                 if (messages.length > 0) {
                     logging.info(NAMESPACE, 'messages data: ', messages);
                 }
-                ServerSocket.instance.SendMessage(
-                    'get_messages',
-                    Object.values(ServerSocket.instance.users),
-                    messages
-                );
+                ServerSocket.instance.SendMessage('get_messages', Object.values(ServerSocket.instance.users), messages);
             })
             .catch(function (error) {
                 console.log('Request failed', error);
             });
-    }
+    };
 }

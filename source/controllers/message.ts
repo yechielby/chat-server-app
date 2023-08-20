@@ -12,9 +12,9 @@ const createMessage = async (req: Request, res: Response, next: NextFunction) =>
     let { userId, message } = req.body;
 
     if (isNaN(Number(userId))) {
-        return res.status(400).json({ message: "userId Is Number only, please!" });
+        return res.status(400).json({ message: 'userId Is Number only, please!' });
     } else if (!message.match(messagePattern)) {
-        return res.status(400).json({ message: "No special characters, please!" });
+        return res.status(400).json({ message: 'No special characters, please!' });
     }
 
     let query = `INSERT INTO messages (user_id, message, created_at) VALUES (${userId}, '${message}', CURRENT_TIMESTAMP)`;
@@ -56,7 +56,8 @@ const createMessage = async (req: Request, res: Response, next: NextFunction) =>
 const getAllMessages = async (req: Request, res: Response, next: NextFunction) => {
     logging.info(NAMESPACE, 'Getting all messages.');
 
-    let query = 'SELECT messages.id as id, users.id as uid, users.nickname as uname, messages.message, messages.created_at as createdAt FROM `messages` LEFT JOIN `users` ON messages.user_id = users.id;';//'SELECT * FROM messages';
+    let query =
+        'SELECT messages.id as id, users.id as uid, users.nickname as uname, messages.message, messages.created_at as createdAt FROM `messages` LEFT JOIN `users` ON messages.user_id = users.id;'; //'SELECT * FROM messages';
 
     Connect()
         .then((connection) => {

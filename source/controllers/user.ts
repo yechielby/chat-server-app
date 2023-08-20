@@ -11,7 +11,7 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
     let { nickname } = req.body;
 
     if (!nickname.match(nicknamePattern)) {
-        return res.status(400).json({ message: "No special characters and no spaces, please!" });
+        return res.status(400).json({ message: 'No special characters and no spaces, please!' });
     }
 
     let query = `UPDATE users SET is_online = true WHERE nickname = "${nickname}"; SELECT * FROM users WHERE nickname = "${nickname}";`;
@@ -41,9 +41,8 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
                                     message: error.message,
                                     error
                                 });
-                            })
+                            });
                     }
-
                 })
                 .catch((error) => {
                     logging.error(NAMESPACE, error.message, error);
@@ -74,7 +73,7 @@ const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
     let { userId } = req.body;
 
     if (isNaN(Number(userId))) {
-        return res.status(400).json({ message: "No special characters and no spaces, please!" });
+        return res.status(400).json({ message: 'No special characters and no spaces, please!' });
     }
 
     let query = `UPDATE users SET is_online = false WHERE id = "${userId}"`;
